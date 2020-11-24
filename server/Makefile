@@ -7,7 +7,7 @@ all:server
 %.o: %.c %.h
 	$(CC) -c *.c
 
-server:server.o userop.o
+server:userop.o server.o 
 	$(CC) *.o -o server.out -lpthread
 
 clean:

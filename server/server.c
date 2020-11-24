@@ -47,10 +47,18 @@ void *start_routine(void *arg){
 
 int main()
 {
-	int a = addtwo(1,2);
-	printf("after add = %d\n",a);
-	reg();
 	regg();
+	int sum = addtwo(2,6);
+	printf("addtwo = %d\n",sum);
+
+	char *id = "my_id";
+	char *pwd = "my_pwd";
+	int is_register = reg(id,pwd);
+	int is_login = login(id,pwd);
+	int is_del = del(id,pwd);
+	int is_add = add('a');
+
+	
     pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
