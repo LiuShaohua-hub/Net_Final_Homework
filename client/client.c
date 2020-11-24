@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "clientop.h"
+
 #define PORT 		12345
 #define MAXDATASIZE	100
 
@@ -16,9 +18,9 @@ int main(int argc, char *argv[])
 	char buf[MAXDATASIZE];
 	struct hostent *he;
 	struct sockaddr_in server, reply;
-	if (argc != 2)
+	if (argc != 3)
 	{
-		printf("Usage: %s  <IP addrress>\n", argv[0]);
+		printf("Usage: %s  <IP addrress> <what you want: 1.register/ 2.login/ 3.del/ 4.add>\n", argv[0]);
 		exit(-1);
 	}
 	if ((he = gethostbyname(argv[1])) == NULL) {
@@ -39,6 +41,24 @@ int main(int argc, char *argv[])
 	if ( (connect(fd, (struct sockaddr *)&server, sizeof(struct sockaddr))) == -1) {
 		perror("connect failed.");
 		exit(1);
+	}
+
+	switch( atoi(argv[2]) ){
+		case 1://register
+			do_register(fd,buf);
+			break;
+		case 2://login
+			do_login(fd,buf);
+			break;
+		case 3://del
+			do_del(fd,buf);
+			break;
+		case 4://add
+			do_add(fd,buf);
+			break;
+		default :
+			do_default(fd,buf);
+			break;
 	}
 
 	if( (numbytes = recv(fd, buf, MAXDATASIZE, 0)) == -1){

@@ -15,10 +15,6 @@
 #define PORT 12345
 #define MAXDATASIZE 100
 #define BACKLOG 5
-typedef struct{
-	int connectfd;
-	struct sockaddr_in client;
-}ARG;
 
 static pthread_key_t Key;
 int err;
@@ -29,8 +25,39 @@ void destr(void *arg){
 	free(arg);
 }
 
-void process_cli(int connectfd,struct sockaddr_in client){
+void recvdata(int connectfd, int *numbytes, char *buffer){
+	if( (*numbytes = recv(connectfd,buffer,MAXDATASIZE,0)) == -1  ){
+		perror("recv error.");
+		exit(1);
+	}
+	buffer[*numbytes] = '\0';
+}
 
+void read_input(int connectfd,int *numbytes,char *idbuffer,char *pwdbuffer){
+	printf("等待输入ID\n");
+	recvdata(connectfd,numbytes,idbuffer);
+	printf("thread %ld recv name : %s\n",pthread_self(),idbuffer);
+	//上面的sizeof问题还是没解决
+
+	printf("等待输入密码\n");
+	recvdata(connectfd,numbytes,pwdbuffer);
+	printf("thread %ld recv message : %s\n",pthread_self(),pwdbuffer);
+	memset(pwdbuffer,0,sizeof(pwdbuffer));
+
+	printf("接收argv[2]\n");
+	recvdata(connectfd,numbytes,pwdbuffer);
+	printf("thread %ld recv what client want : %s\n",pthread_self(),pwdbuffer);
+}
+
+void process_cli(int connectfd,struct sockaddr_in client){
+	char sendbuffer[MAXDATASIZE];
+	char pwdbuffer[MAXDATASIZE];
+	char idbuffer[MAXDATASIZE];
+	int numbytes;
+	
+	read_input(connectfd,&numbytes,idbuffer,pwdbuffer);
+
+	send(connectfd,"Welcome to server",18,0);
 
 }
 
@@ -47,18 +74,16 @@ void *start_routine(void *arg){
 
 int main()
 {
-	regg();
-	int sum = addtwo(2,6);
-	printf("addtwo = %d\n",sum);
-
+	
+	/*
 	char *id = "my_id";
 	char *pwd = "my_pwd";
 	int is_register = reg(id,pwd);
 	int is_login = login(id,pwd);
 	int is_del = del(id,pwd);
 	int is_add = add('a');
+	*/
 
-	
     pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;

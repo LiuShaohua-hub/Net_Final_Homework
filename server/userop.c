@@ -1,8 +1,12 @@
 #include "userop.h"
+#include "typess.h"
 #include <stdio.h>
 
 int reg(char *id, char *pwd){
-    printf("here is register,and id = %s, pwd = %s\n",id,pwd);
+    User user;
+    user.id = id;
+    user.pwd = pwd;
+    printf("here is register,and id = %s, pwd = %s\n",user.id,user.pwd);
     return 1;
 }
 
