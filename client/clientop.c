@@ -15,10 +15,27 @@ void read_id_pwd(int fd,char *buf){
 	bzero(buf,sizeof(buf));
 }
 
+void read_message(int fd,char *buf){
+	printf("Please input your ID: ");
+	scanf("%s",buf);
+	send(fd,buf,sizeof(buf),0);
+	memset(buf,0,sizeof(buf));
+
+	printf("Please input other's ID: ");
+	scanf("%s",buf);
+	send(fd,buf,sizeof(buf),0);
+	memset(buf,0,sizeof(buf));
+
+	printf("Please input your message: ");
+	scanf("%s",buf);
+	send(fd,buf,sizeof(buf),0);
+	bzero(buf,sizeof(buf));
+}
+
 //client端的register函数，读取id pwd，然后发送"1"到服务器
 void do_register(int fd,char *buf){
 	printf("do register(1)\n");
-	send(fd,"1",9,0);//先发送action
+	send(fd,"1",2,0);//先发送action
 	read_id_pwd(fd,buf);//再读取id pwd
 	bzero(buf,sizeof(buf));
 }
@@ -26,7 +43,7 @@ void do_register(int fd,char *buf){
 //client端的login函数，读取id pwd，然后发送"2"到服务器
 void do_login(int fd,char *buf){
 	printf("do login(2)\n");
-	send(fd,"2",6,0);
+	send(fd,"2",2,0);
 	read_id_pwd(fd,buf);
 	bzero(buf,sizeof(buf));
 }
@@ -34,7 +51,7 @@ void do_login(int fd,char *buf){
 //client端的del函数，读取id pwd，然后发送"3"到服务器
 void do_del(int fd,char *buf){
 	printf("do del(3)\n");
-	send(fd,"3",4,0);
+	send(fd,"3",2,0);
 	read_id_pwd(fd,buf);
 	bzero(buf,sizeof(buf));
 }
@@ -42,15 +59,22 @@ void do_del(int fd,char *buf){
 //client端的add函数，读取id pwd，然后发送"4"到服务器
 void do_add(int fd,char *buf){
 	printf("do add(4)\n");
-	send(fd,"4",4,0);
+	send(fd,"4",2,0);
 	read_id_pwd(fd,buf);
+	bzero(buf,sizeof(buf));
+}
+
+void sendmessage(int fd,char *buf){
+	printf("send message(5)\n");
+	send(fd,"5",2,0);
+	read_message(fd,buf);//读自己id，发往的id，发送的message
 	bzero(buf,sizeof(buf));
 }
 
 //client端的default函数，读取id pwd，然后发送"0"到服务器
 void do_default(int fd,char *buf){
 	printf("do nothing(0)\n");
-	send(fd,"0",11,0);
+	send(fd,"0",2,0);
 	read_id_pwd(fd,buf);
 	bzero(buf,sizeof(buf));
 }

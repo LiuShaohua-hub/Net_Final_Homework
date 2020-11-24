@@ -12,6 +12,8 @@ void do_del(int fd,char *buf);
 
 void do_add(int fd,char *buf);
 
+void sendmessage(int fd,char *buf);
+
 void do_default(int fd,char *buf);
 
 //封装switch  void do_choose_option(int fd,char *buf,int case);

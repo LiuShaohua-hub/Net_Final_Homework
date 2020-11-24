@@ -56,6 +56,9 @@ int main(int argc, char *argv[])
 		case 4://add
 			do_add(fd,buf);
 			break;
+		case 5://send message
+			sendmessage(fd,buf);
+			break;		
 		default :
 			do_default(fd,buf);
 			break;

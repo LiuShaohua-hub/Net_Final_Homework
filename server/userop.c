@@ -26,6 +26,10 @@ int add(){
     return 0;
 }
 
+int sendmessage(char *send_id, char *otherid, char *message){
+    printf("from id = %s to id = %s and send message = %s\n",send_id,otherid,message);
+}
+
 void default_branch(){
     printf("here is default branch\n");
 }

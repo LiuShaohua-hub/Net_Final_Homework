@@ -47,8 +47,23 @@ void read_id_pwd(int connectfd, int *numbytes, char *idbuffer, char *pwdbuffer){
 	printf("thread %ld recv message : %s\n",pthread_self(),pwdbuffer);
 }
 
+//读id--->idbuffer，读发往的id--->otheridbuffer，读信息--->message
+void read_id_oid_message(int connectfd, int *numbytes, char *idbuffer, char *otheridbuffer, char *message){
+	printf("等待输入ID\n");
+	recvdata(connectfd,numbytes,idbuffer);
+	printf("thread %ld recv name : %s\n",pthread_self(),idbuffer);
+
+	printf("等待输入发往的id\n");
+	recvdata(connectfd,numbytes,otheridbuffer);
+	printf("thread %ld recv message : %s\n",pthread_self(),otheridbuffer);	
+
+	printf("等待发送的信息\n");
+	recvdata(connectfd,numbytes,message);
+	printf("thread %ld recv message : %s\n",pthread_self(),message);	
+}
+
 //判断action是什么，然后调用相应的业务函数
-void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *actbuffer){
+void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *actbuffer,char *messagebuffer){
 
 	switch( atoi(actbuffer) ){
 		case 1://register
@@ -66,21 +81,25 @@ void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *a
 		case 4://add
 			add();
 			break;
+		case 5://有人要发信息
+			read_id_oid_message(connectfd,numbytes,idbuffer,pwdbuffer,messagebuffer);//这里吧pwd当做otheridbuffer来用了
+			//对上面收到的信息进行处理
+			sendmessage(idbuffer,pwdbuffer,messagebuffer);
+			break;
 		default :
 			default_branch();
 			break;
 	}
-
 }
 
 //先读action，在调用action：根据action调用相应的业务函数
-void read_input(int connectfd,int *numbytes, char *idbuffer, char *pwdbuffer, char *actbuffer){
+void read_input(int connectfd,int *numbytes, char *idbuffer, char *pwdbuffer, char *actbuffer,char *messagebuffer){
 	printf("接收action-->argv[2]\n");
 	recvdata(connectfd,numbytes,actbuffer);
 	printf("thread %ld recv what client want : %d\n",pthread_self(), atoi(actbuffer) );
 
 	//接收action后，判断action是什么，然后调用相应的东西进行处理
-	action(connectfd,numbytes,idbuffer,pwdbuffer,actbuffer);
+	action(connectfd,numbytes,idbuffer,pwdbuffer,actbuffer,messagebuffer);
 }
 
 void process_cli(int connectfd,struct sockaddr_in client){
@@ -88,9 +107,10 @@ void process_cli(int connectfd,struct sockaddr_in client){
 	char pwdbuffer[MAXDATASIZE];
 	char idbuffer[MAXDATASIZE];
 	char actbuffer[MAXDATASIZE];
+	char messagebuffer[MAXDATASIZE];
 	int numbytes;
 	
-	read_input(connectfd,&numbytes,idbuffer,pwdbuffer,actbuffer);
+	read_input(connectfd,&numbytes,idbuffer,pwdbuffer,actbuffer,messagebuffer);
 	//第一次调用的人，必须给TSD创建key
 	pthread_once(&once,thread_init);
 	

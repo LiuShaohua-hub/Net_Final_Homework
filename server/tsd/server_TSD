@@ -90,7 +90,7 @@ void process_cli(int connectfd,struct sockaddr_in client){
 	
 	printf("thread(from main) %ld is running, and data after memcpy(before reverse) is %s\n",pthread_self(),(char*)pthread_getspecific(Key));
 
-	//输入边界的问题，只要翻转的边界合适，就能正常输出，numbytes是1024，不是真正有数据的大小
+	//输入边界的问题，只要翻转的边界合适，就能正常输出，numbytes是1024，不是真正有数据的大小,要用strlen 不是sizeof
 	reverseString(recvbuffer,strlen(recvbuffer));
 
 
