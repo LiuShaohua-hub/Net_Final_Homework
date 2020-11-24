@@ -12,7 +12,7 @@ int (* add)(char id);
 int reg(char *id, char *pwd);
 int login(char *id, char *pwd);
 int del(char *id, char *pwd);
-int add(char id);
-
+int add();
+void default_branch();
 
 #endif

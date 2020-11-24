@@ -3,10 +3,11 @@
 #include <stdio.h>
 
 int reg(char *id, char *pwd){
+    /*
     User user;
     user.id = id;
-    user.pwd = pwd;
-    printf("here is register,and id = %s, pwd = %s\n",user.id,user.pwd);
+    user.pwd = pwd;*/
+    printf("here is register,and id = %s, pwd = %s\n",id, pwd);
     return 1;
 }
 
@@ -20,7 +21,11 @@ int del(char *id, char *pwd){
     return 0;
 }
 
-int add(char id){
+int add(){
     printf("here is add\n");
     return 0;
+}
+
+void default_branch(){
+    printf("here is default branch\n");
 }
