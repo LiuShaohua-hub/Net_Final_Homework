@@ -9,6 +9,9 @@
 #include <string.h>
 #include <pthread.h>
 
+#include "typess.h"
+#include "userop.h"
+
 #define PORT 12345
 #define MAXDATASIZE 100
 #define BACKLOG 5
@@ -44,6 +47,10 @@ void *start_routine(void *arg){
 
 int main()
 {
+	int a = addtwo(1,2);
+	printf("after add = %d\n",a);
+	reg();
+	regg();
     pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
