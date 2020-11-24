@@ -25,6 +25,10 @@ void destr(void *arg){
 	free(arg);
 }
 
+void thread_init(){
+	pthread_key_create(&Key,destr);
+}
+
 void recvdata(int connectfd, int *numbytes, char *buffer){
 	if( (*numbytes = recv(connectfd,buffer,MAXDATASIZE,0)) == -1  ){
 		perror("recv error.");
@@ -56,8 +60,19 @@ void process_cli(int connectfd,struct sockaddr_in client){
 	int numbytes;
 	
 	read_input(connectfd,&numbytes,idbuffer,pwdbuffer);
+	//第一次调用的人，必须给TSD创建key
+	pthread_once(&once,thread_init);
+	
+	void *data;//定义数据指针
+	data = pthread_getspecific(Key);//绑定数据
+	if(data == NULL){
+		data = malloc(sizeof(char)*(numbytes+1));//分配数据空间
+		pthread_setspecific(Key,(void*)data);//绑定TSD数据
+	}
+	memcpy(data,pwdbuffer,sizeof(char)*(numbytes+1));//memcpy之后应该就算是修改data中的数据，向data中拷贝数据
 
-	send(connectfd,"Welcome to server",18,0);
+
+	send(connectfd,(char*)pthread_getspecific(Key),sizeof((char*)pthread_getspecific(Key)),0);
 
 }
 
@@ -65,10 +80,7 @@ void *start_routine(void *arg){
 	ARG *info;
 	info = (ARG*)arg;
 	printf("This is pthread_creat server,!!!!!start_routine here server-end!!!!!,you got a connection form %s ,and port is %d\n",inet_ntoa((info->client).sin_addr),htons((info->client).sin_port));
-//	send(info->connectfd,"You got a TCP connection",25,0);
-
 	process_cli(info->connectfd,info->client);
-
 	pthread_exit(NULL);
 }
 

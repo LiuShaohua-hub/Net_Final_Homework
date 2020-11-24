@@ -11,4 +11,4 @@ server:userop.o server.o
 	$(CC) *.o -o server.out -lpthread
 
 clean:
-	$(DEL) *.o *.exe *.out
+	$(DEL) *.o *.out
