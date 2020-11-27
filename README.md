@@ -54,11 +54,14 @@ typedef struct user{
 #### 逻辑错误被引发
 - head和new 一个node的时候 指针域不清楚就记得初始化NULL
 
-#### User结构体中的char friendlist[] = {0}；不行
+#### User结构体中的char friendlist[] = {0}；不行 2020-11-27
 - memset()来进行这个char数组的初始化，直接={0}全初始化为0是不行的。
 
-#### 段错误
+#### 段错误 2020-11-27
 - main中的head各个字段没有初始化的时候，就出现段错误
+- 有一版的register 段错误，找不到为啥
+#### print_all_user_message 错误 2020-11-27
+- printf的时候，不atoi，就是乱码，atoi了 就是0，不知道咋了！！
 
 
 ### 进度记录
