@@ -23,7 +23,7 @@ int err;
 static pthread_once_t  once = PTHREAD_ONCE_INIT;
 
 Linklist_User *head;//新建一个linklist_user头结点
-
+Linklist_User *node[10];//直接新建10个用，后面再优化
 
 void destr(void *arg){
 	printf("destroy memory, pthread_self is %ld\n\n",pthread_self());
@@ -116,6 +116,7 @@ void process_cli(int connectfd,struct sockaddr_in client){
 	int numbytes;
 	
 	read_input(connectfd,&numbytes,idbuffer,pwdbuffer,actbuffer,messagebuffer);
+	/*1.
 	//第一次调用的人，必须给TSD创建key
 	pthread_once(&once,thread_init);
 	
@@ -128,7 +129,8 @@ void process_cli(int connectfd,struct sockaddr_in client){
 	memcpy(data,actbuffer,sizeof(char)*(numbytes+1));//memcpy 向data中拷贝数据,这里拷贝的act，返回的也是act
 
 
-	send(connectfd,(char*)pthread_getspecific(Key),sizeof((char*)pthread_getspecific(Key)),0);
+	send(connectfd,(char*)pthread_getspecific(Key),sizeof((char*)pthread_getspecific(Key)),0);*/
+	send(connectfd, actbuffer, strlen(actbuffer), 0);
 
 }
 
@@ -140,18 +142,44 @@ void *start_routine(void *arg){
 	pthread_exit(NULL);
 }
 
+//初始化链表
+void init_all_node(){
+	int i = 0;
+	for(i = 0; i<10; i++){
+		node[i] = (Linklist_User *)malloc(sizeof(Linklist_User));
+		memset(node[i]->friendlist,0,sizeof(node[i]->friendlist));
+		node[i]->id = "-1";
+		node[i]->message = NULL;
+		
+		if( i != 9) node[i]->next = node[i+1];
+		else node[i]->next = NULL;
+		
+		if( i == 0 ) node[i]->pre = NULL;
+		else node[i]->pre = node[i-1];
+		
+		node[i]->pwd = "init pwd";
+		node[i]->stat = 0;
+	}
+}
+
 int main()
 {
+	
 	//给全局的head指针，分配指向的node空间。初始化head节点，里面是空的
 	head = (Linklist_User *)malloc(sizeof(Linklist_User));
 	head->id = "-1";
-	head->message = NULL;
-	head->pre = head;//新建的时候pre、next都指向自己
-	head->next = head;
+	head->pre = NULL;//新建的时候pre、next都指向自己
+	head->next = NULL;
 	head->pwd = "there is head don't change!";
 	head->stat = 0;
+	//memset( (void*)head->friendlist, 0, sizeof(head->friendlist));
+	head->message = NULL;
 
-    pid_t pid;
+
+	init_all_node();
+    
+	
+	pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
     socklen_t sin_size;
@@ -176,7 +204,7 @@ int main()
 	}
 	sin_size = sizeof(client);
 
-	err = pthread_key_create(&Key,destr);
+	//2. err = pthread_key_create(&Key,destr);
 
 	while(1){
 		ARG *arg;

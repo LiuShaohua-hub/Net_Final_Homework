@@ -51,7 +51,18 @@ typedef struct user{
 #### warning: incompatible implicit declaration of built-in function malloc’ [enabled by default] user = (Linklist_User *)malloc(sizeof(Linklist_User));
 - 没有引入stdlib.h头文件
 
+#### 逻辑错误被引发
+- head和new 一个node的时候 指针域不清楚就记得初始化NULL
+
+#### User结构体中的char friendlist[] = {0}；不行
+- memset()来进行这个char数组的初始化，直接={0}全初始化为0是不行的。
+
+#### 段错误
+- main中的head各个字段没有初始化的时候，就出现段错误
+
 
 ### 进度记录
 - 2020-11-24 20:56---->client 根据argv[2]的值1-4判断要干什么，然后发送action，读取id发送id 读pwd，发pwd(相应server，先接受action，然后根据action判断调用哪个业务函数)
 - 2020-11-24 22::20---->添加了发送信息的框架，拿到信息后怎么处理待写
+- 2020-11-26--->模块的处理逻辑框架有了，但是逻辑还有问题，链表操作还有问题
+- 2020-11-27--->
