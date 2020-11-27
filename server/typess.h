@@ -14,7 +14,7 @@ typedef struct mes{
 typedef struct user{
     struct user *next;//遍历用户list的指针，指向本类型
     struct user *pre;
-    char *id;
+    char *id;//回退
     char *pwd;
     int stat;
     char friendlist[128];
