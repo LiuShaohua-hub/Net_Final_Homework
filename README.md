@@ -19,6 +19,39 @@
 - linux下的makefile里rm *.exe了，不是在windows下，所以删去就好了
 - 没有要删除的文件的时候，也会错误，空删
 
+#### typedef的问题
+```C
+typedef struct {
+    struct Linklist_User *next;//遍历用户list的指针，指向本类型
+    char *id;
+    char *pwd;
+    int stat;
+    char friendlist[128];
+    struct Mes *p_umessage;//指向用户的消息
+}Linklist_User;
+```
+- 这样写出错了，以后按照下面那样写
+- 在节点的next域 = 指向一个node的指针的时候，出错
+
+---
+
+```C
+typedef struct user{
+    struct user *next;//遍历用户list的指针，指向本类型
+    char *id;
+    char *pwd;
+    int stat;
+    char friendlist[128];
+    struct Mes *p_umessage;//指向用户的消息
+}Linklist_User;
+```
+- 上面是没问题的，加上了struct后面的东西
+- 实际上，完成了两个操作，1.定义一个新的结构类型user，2.重命名为Linklist_User
+
+#### warning: incompatible implicit declaration of built-in function malloc’ [enabled by default] user = (Linklist_User *)malloc(sizeof(Linklist_User));
+- 没有引入stdlib.h头文件
+
+
 ### 进度记录
 - 2020-11-24 20:56---->client 根据argv[2]的值1-4判断要干什么，然后发送action，读取id发送id 读pwd，发pwd(相应server，先接受action，然后根据action判断调用哪个业务函数)
 - 2020-11-24 22::20---->添加了发送信息的框架，拿到信息后怎么处理待写

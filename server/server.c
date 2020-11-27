@@ -8,9 +8,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <stddef.h>
 
 #include "typess.h"
 #include "userop.h"
+#include "link_op.h"
 
 #define PORT 12345
 #define MAXDATASIZE 50
@@ -19,6 +21,9 @@
 static pthread_key_t Key;
 int err;
 static pthread_once_t  once = PTHREAD_ONCE_INIT;
+
+Linklist_User *head;//新建一个linklist_user头结点
+
 
 void destr(void *arg){
 	printf("destroy memory, pthread_self is %ld\n\n",pthread_self());
@@ -137,6 +142,15 @@ void *start_routine(void *arg){
 
 int main()
 {
+	//给全局的head指针，分配指向的node空间。初始化head节点，里面是空的
+	head = (Linklist_User *)malloc(sizeof(Linklist_User));
+	head->id = "-1";
+	head->message = NULL;
+	head->pre = head;//新建的时候pre、next都指向自己
+	head->next = head;
+	head->pwd = "there is head don't change!";
+	head->stat = 0;
+
     pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
@@ -171,7 +185,7 @@ int main()
 		perror("accept error.");
 		exit(-1);
 		}
-		
+
 		arg->connectfd = connectfd;
 		//先取arg指向的client，再取地址，再强转为指向void指针
 		memcpy((void*)&arg->client,&client,sizeof(client));
