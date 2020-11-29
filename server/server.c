@@ -14,7 +14,7 @@
 #include "userop.h"
 #include "link_op.h"
 
-#define PORT 12345
+#define PORT 12344
 #define MAXDATASIZE 50
 #define BACKLOG 5
 
@@ -22,8 +22,21 @@ static pthread_key_t Key;
 int err;
 static pthread_once_t  once = PTHREAD_ONCE_INIT;
 
-Linklist_User *head,*p1,*p2;//新建一个linklist_user头结点
+Linklist_User *head,*tail;//新建一个linklist_user头结点
 
+//遍历此时注册的用户
+/*void bianli_c()
+{
+	Linklist_User *bianl=head;
+	bianl = bianl->next;
+//	bianl=bianl->next;
+	while(bianl != NULL)
+	{
+		printf("%s\n",bianl->id);
+		bianl = bianl->next;
+	}
+}
+*/
 void destr(void *arg){
 	printf("destroy memory, pthread_self is %ld\n\n",pthread_self());
 	free(arg);
@@ -51,6 +64,12 @@ void read_id_pwd(int connectfd, int *numbytes, char *idbuffer, char *pwdbuffer){
 	printf("thread %ld recv message : %s\n",pthread_self(),pwdbuffer);
 }
 
+void read_once(int connectfd, int *numbytes, char *buffer){
+	memset(buffer,0,sizeof(buffer));
+	recvdata(connectfd,numbytes,buffer);
+	printf("thread %ld recv message: %s\n",pthread_self(),buffer);
+}
+
 //读id--->idbuffer，读发往的id--->otheridbuffer，读信息--->message
 void read_id_oid_message(int connectfd, int *numbytes, char *idbuffer, char *otheridbuffer, char *message){
 	printf("等待输入ID\n");
@@ -71,18 +90,34 @@ void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *a
 
 	switch( atoi(actbuffer) ){
 		case 1://register
-			read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
-			reg(idbuffer, pwdbuffer);
+			//read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
+			read_once(connectfd, numbytes, idbuffer);//读id
+			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+
+			reg(head,tail,idbuffer, pwdbuffer);
+			traverselist(head,tail);
 			break;
 		case 2://login
-			read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
+			//client 两个send的东西，被一次recv了 ，这里，read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
+			read_once(connectfd, numbytes, idbuffer);//读id
+			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+			
 			login(idbuffer, pwdbuffer);
 			break;
 		case 3://del
-			read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
+			read_once(connectfd, numbytes, idbuffer);//读id
+			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+
 			del(idbuffer, pwdbuffer);
 			break;
 		case 4://add
+			read_once(connectfd, numbytes, idbuffer);//读id
+			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+
 			add();
 			break;
 		case 5://有人要发信息
@@ -143,8 +178,8 @@ void *start_routine(void *arg){
 
 int main()
 {
- 	creatfirst();
-	   
+ //	creatfirst();
+	initdlinklist(head,tail);	   
 	pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
