@@ -334,7 +334,7 @@ int mysql_register(char *id , char *pwd){
     }
     printf("Conneted MYSQL successful!\n");
     //往表中插入数据
-    sprintf(query_str,"insert into user(userid,pwd,stat) value(id,pwd,0)");
+    sprintf(query_str,"insert into user(userid,pwd,stat) value('%s','%s','%d')",id,pwd,0);
     rc = mysql_real_query(&mysql,query_str,strlen(query_str));
     if(0!= rc)
     {

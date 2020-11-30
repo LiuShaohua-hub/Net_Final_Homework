@@ -9,7 +9,7 @@
 
 #include "clientop.h"
 
-#define PORT 		12345
+#define PORT 		12344
 #define MAXDATASIZE	100
 
 int main(int argc, char *argv[])
