@@ -9,6 +9,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <stddef.h>
+#include <mysql/mysql.h>
 
 #include "typess.h"
 #include "userop.h"
@@ -21,8 +22,9 @@
 static pthread_key_t Key;
 int err;
 static pthread_once_t  once = PTHREAD_ONCE_INIT;
+//Linklist_User *head,*tail;//新建一个linklist_user头结点
 
-Linklist_User *head,*tail;//新建一个linklist_user头结点
+
 
 //遍历此时注册的用户
 /*void bianli_c()
@@ -94,16 +96,16 @@ void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *a
 			read_once(connectfd, numbytes, idbuffer);//读id
 			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
 			read_once(connectfd, numbytes, pwdbuffer);//读pwd
-
-			reg(head,tail,idbuffer, pwdbuffer);
-			traverselist(head,tail);
+		        mysql_register(idbuffer,pwdbuffer);	
+			//reg(head,tail,idbuffer, pwdbuffer);
+			//traverselist(head,tail);
 			break;
 		case 2://login
 			//client 两个send的东西，被一次recv了 ，这里，read_id_pwd(connectfd,numbytes,idbuffer,pwdbuffer);
 			read_once(connectfd, numbytes, idbuffer);//读id
 			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
 			read_once(connectfd, numbytes, pwdbuffer);//读pwd
-			
+
 			login(idbuffer, pwdbuffer);
 			break;
 		case 3://del
@@ -111,19 +113,37 @@ void action(int connectfd, int *numbytes, char *idbuffer,char *pwdbuffer,char *a
 			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
 			read_once(connectfd, numbytes, pwdbuffer);//读pwd
 
-			del(idbuffer, pwdbuffer);
+			//del(idbuffer, pwdbuffer);
+			mysql_del(idbuffer, pwdbuffer);
 			break;
 		case 4://add
 			read_once(connectfd, numbytes, idbuffer);//读id
 			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+
 			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+			if( strlen(pwdbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+
+			read_once(connectfd, numbytes, actbuffer);//读otherid
+			if( strlen(actbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
 
 			add();
 			break;
 		case 5://有人要发信息
-			read_id_oid_message(connectfd,numbytes,idbuffer,pwdbuffer,messagebuffer);//这里吧pwd当做otheridbuffer来用了
+			read_once(connectfd, numbytes, idbuffer);//读id
+			if( strlen(idbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+
+			read_once(connectfd, numbytes, pwdbuffer);//读pwd
+			if( strlen(pwdbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+
+			read_once(connectfd, numbytes, actbuffer);//读otherid
+			if( strlen(actbuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+
+			read_once(connectfd, numbytes, messagebuffer);//读message
+			//if( strlen(messagebuffer) > 0 ) send(connectfd,"1",2,0);//发送确认信息回去
+			//read_id_oid_message(connectfd,numbytes,idbuffer,pwdbuffer,messagebuffer);//这里吧pwd当做otheridbuffer来用了
 			//对上面收到的信息进行处理
-			sendmessage(idbuffer,pwdbuffer,messagebuffer);
+			
+			//sendmessage(idbuffer,pwdbuffer,messagebuffer);
 			break;
 		default :
 			default_branch();
@@ -178,8 +198,13 @@ void *start_routine(void *arg){
 
 int main()
 {
- //	creatfirst();
-	initdlinklist(head,tail);	   
+	//printf("query statu:%d\n",mysql_find_user_by_useid("5"));
+	mysql_test();
+	mysql_output_friend();
+	mysql_output_message();
+	
+//	Linklist_User *head,*tail;
+//	initdlinklist(head,tail);	   
 	pid_t pid;
 	int sockfd,connectfd;
     struct sockaddr_in server, client;
