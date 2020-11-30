@@ -20,6 +20,8 @@
 #define BACKLOG 5
 //duewfbuefhfhefjhwfhfeshfhjerngj
 //cmkngvbgrejgrjngrnrncjesnfjabhbrhbghvgbrgbvj
+//jdugu
+//whndhwjnfeg
 static pthread_key_t Key;
 int err;
 static pthread_once_t  once = PTHREAD_ONCE_INIT;
